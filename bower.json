@@ -1,24 +1,29 @@
 {
-  "name": "angular-cc-security",
+  "name": "angular-cc-token-security",
   "version": "0.0.0",
   "authors": [
-    "Pawel Mackowski <pmackowski@gazeta.pl>"
+    "Pawel Mackowski <pmackowski@coffeecode.pl>"
   ],
-  "description": "Angular token secuity",
+  "description": "Angular token security",
   "main": "roles.js",
   "keywords": [
     "globals"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/pmackowski/angular-cc-security",
+  "homepage": "https://github.com/pmackowski/angular-cc-token-security",
   "ignore": [
     "**/.*",
     "node_modules",
     "bower_components",
     "test",
-    "tests"
+    "tests",
+    "Gruntfile.js"
   ],
   "dependencies": {
-    "angular": "~1.3.0"
+    "angular": "~1.3.0",
+    "angular-local-storage": "~0.1.5"
+  },
+  "devDependencies": {
+    "angular-mocks": "~1.3.12"
   }
 }
