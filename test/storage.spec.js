@@ -1,6 +1,6 @@
-describe('security.storage module', function(){
+describe('ccTokenSecurity.storage module', function(){
 
-    beforeEach(module('security.storage'));
+    beforeEach(module('ccTokenSecurity.storage'));
 
     var user = {
         login: 'user1',

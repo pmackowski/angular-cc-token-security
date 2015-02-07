@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('security').controller('LogoutController', ['$state', 'Session',
-    function ($state, Session) {
+angular.module('ccTokenSecurity').controller('LogoutController', ['$state', 'Session', 'ccTokenSecurity',
+    function ($state, Session, ccTokenSecurity) {
         Session.invalidate();
-        $state.go('login');
+        $state.go(ccTokenSecurity.getLogout().nextState);
     }]);

@@ -1,4 +1,4 @@
-angular.module('security.events', [])
+angular.module('ccTokenSecurity.events', [])
 
 .constant('AUTH_EVENTS', {
     notAuthenticated: 'notAuthenticated',

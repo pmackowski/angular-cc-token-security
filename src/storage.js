@@ -1,20 +1,12 @@
 'use strict';
 
-angular.module('security.storage', ['LocalStorageModule'])
+angular.module('ccTokenSecurity.storage', ['LocalStorageModule', 'ccTokenSecurity.provider'])
 
-    .constant('TOKEN_KEY', 'x-auth-token')
-    .constant('USER_KEY', 'user')
-    .constant('STORAGE_PREFIX', 'cc-app')
+    .factory('Session', ['localStorageService', 'ccTokenSecurity',
+        function (localStorageService, ccTokenSecurity) {
+            var tokenKey = ccTokenSecurity.getTokenKey();
+            var userKey = ccTokenSecurity.getUserKey();
 
-    .config(['localStorageServiceProvider', 'STORAGE_PREFIX', function (localStorageServiceProvider, STORAGE_PREFIX) {
-        localStorageServiceProvider.setPrefix(STORAGE_PREFIX);
-        localStorageServiceProvider.setStorageType('sessionStorage');
-    }])
-
-    .factory('Session', ['localStorageService','TOKEN_KEY', 'USER_KEY',
-        function (localStorageService, TOKEN_KEY, USER_KEY) {
-            var tokenKey = TOKEN_KEY;
-            var userKey = USER_KEY;
             return {
                 create: function (user) {
                     localStorageService.set(tokenKey, user.token);

@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('security.service', ['security.storage'])
+angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage'])
 
 .factory('Auth', ['Session', function (Session) {
 

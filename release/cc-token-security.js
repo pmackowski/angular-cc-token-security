@@ -1,80 +1,61 @@
 'use strict';
 
-var security = angular.module('security', [
-    'security.events',
-    'security.roles',
-    'security.storage',
-    'security.interceptor',
-    'security.service',
+var security = angular.module('ccTokenSecurity', [
+    'ccTokenSecurity.events',
+    'ccTokenSecurity.storage',
+    'ccTokenSecurity.interceptor',
+    'ccTokenSecurity.service',
+    'ccTokenSecurity.provider',
+    'ngResource',
     'ui.router'
 ]);
 
-security
-    .config(['$httpProvider', '$stateProvider',
-        function ($httpProvider, $stateProvider) {
+security.run(['$state', '$rootScope', '$location', 'AUTH_EVENTS', 'Session', 'Auth', 'ccTokenSecurity',
+    function ($state, $rootScope, $location, AUTH_EVENTS, Session, Auth, ccTokenSecurity) {
 
-            $stateProvider
-                .state('login', {
-                    url: '/login',
-                    templateUrl: 'common/security/login.html',
-                    controller: 'LoginController'
-                })
-                .state('logout', {
-                    url: '/logout',
-                    controller: 'LogoutController'
-                })
-                .state('accessForbidden', {
-                    url: '/accessForbidden',
-                    templateUrl: 'common/security/403.html'
-                });
-        }])
-    .run(['$state', '$rootScope', '$location', 'AUTH_EVENTS', 'Session', 'Auth',
-        function ($state, $rootScope, $location, AUTH_EVENTS, Session, Auth) {
-            delete $rootScope.originalPath;
+        var login = ccTokenSecurity.getLogin();
+        var accessForbidden = ccTokenSecurity.getAccessForbidden();
 
-            $rootScope.$on('$stateChangeStart', function (event, toState) {
-                var access = toState.access;
-                if (Auth.permitAll(access)) {
-                    return;
-                }
-                if (Auth.isNotAuthenticated()) {
-                    event.preventDefault();
-                    $rootScope.originalPath = $location.path();
-                    $state.go('login');
-                } else if (!Auth.hasRole(access)) {
-                    event.preventDefault();
-                    $state.go('accessForbidden');
-                }
-            });
+        delete $rootScope.originalPath;
 
-            $rootScope.$on(AUTH_EVENTS.notAuthenticated, function () {
-                $state.go('login');
-            });
+        $rootScope.$on('$stateChangeStart', function (event, toState) {
+            var access = toState.access;
+            if (Auth.permitAll(access)) {
+                return;
+            }
+            if (Auth.isNotAuthenticated()) {
+                event.preventDefault();
+                $rootScope.originalPath = $location.path(); // TODO
+                $state.go(login.state);
+            } else if (!Auth.hasRole(access)) {
+                event.preventDefault();
+                $state.go(accessForbidden.state);
+            }
+        });
 
-            $rootScope.$on(AUTH_EVENTS.notAuthorized, function () {
-                $state.go('accessForbidden');
-            });
-        }]);
+        $rootScope.$on(AUTH_EVENTS.notAuthenticated, function () {
+            $state.go(login.state);
+        });
+
+        $rootScope.$on(AUTH_EVENTS.notAuthorized, function () {
+            $state.go(accessForbidden.state);
+        });
+    }]);
 
 
 
 
 
-angular.module('security.events', [])
+angular.module('ccTokenSecurity.events', [])
 
 .constant('AUTH_EVENTS', {
     notAuthenticated: 'notAuthenticated',
     notAuthorized: 'notAuthorized'
 });
 
-angular.module('security.roles', [])
-    .constant('ROLE', {
-        admin: 'ROLE_ADMIN',
-        user: 'ROLE_USER'
-    });
 'use strict';
 
-angular.module('security.service', ['security.storage'])
+angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage'])
 
 .factory('Auth', ['Session', function (Session) {
 
@@ -115,16 +96,17 @@ angular.module('security.service', ['security.storage'])
 
 'use strict';
 
-angular.module('security.interceptor', ['security.events', 'security.storage'])
+angular.module('ccTokenSecurity.interceptor', ['ccTokenSecurity.events', 'ccTokenSecurity.storage', 'ccTokenSecurity.provider'])
 
-.factory('securityInterceptor', ['$rootScope', '$q', 'Session', 'AUTH_EVENTS','TOKEN_KEY',
-    function ($rootScope, $q, Session, AUTH_EVENTS, TOKEN_KEY) {
+.factory('securityInterceptor', ['$rootScope', '$q', 'Session', 'AUTH_EVENTS','ccTokenSecurity',
+    function ($rootScope, $q, Session, AUTH_EVENTS, ccTokenSecurity) {
 
         var securityInterceptor = {
             request: function (config) {
                 var authToken = Session.authToken();
+                var tokenKey = ccTokenSecurity.getTokenKey();
                 if (authToken) {
-                    config.headers[TOKEN_KEY] = authToken;
+                    config.headers[tokenKey] = authToken;
                 }
                 return config;
             },
@@ -147,21 +129,13 @@ angular.module('security.interceptor', ['security.events', 'security.storage'])
 }]);
 'use strict';
 
-angular.module('security.storage', ['LocalStorageModule'])
+angular.module('ccTokenSecurity.storage', ['LocalStorageModule', 'ccTokenSecurity.provider'])
 
-    .constant('TOKEN_KEY', 'x-auth-token')
-    .constant('USER_KEY', 'user')
-    .constant('STORAGE_PREFIX', 'cc-app')
+    .factory('Session', ['localStorageService', 'ccTokenSecurity',
+        function (localStorageService, ccTokenSecurity) {
+            var tokenKey = ccTokenSecurity.getTokenKey();
+            var userKey = ccTokenSecurity.getUserKey();
 
-    .config(['localStorageServiceProvider', 'STORAGE_PREFIX', function (localStorageServiceProvider, STORAGE_PREFIX) {
-        localStorageServiceProvider.setPrefix(STORAGE_PREFIX);
-        localStorageServiceProvider.setStorageType('sessionStorage');
-    }])
-
-    .factory('Session', ['localStorageService','TOKEN_KEY', 'USER_KEY',
-        function (localStorageService, TOKEN_KEY, USER_KEY) {
-            var tokenKey = TOKEN_KEY;
-            var userKey = USER_KEY;
             return {
                 create: function (user) {
                     localStorageService.set(tokenKey, user.token);
@@ -182,23 +156,97 @@ angular.module('security.storage', ['LocalStorageModule'])
     ]);
 'use strict';
 
-angular.module('security').controller('LoginController', ['$http', '$scope', '$rootScope', '$location', '$state', '$stateParams', 'AuthResource','Session',
-    function ($http, $scope, $rootScope, $location, $state, $stateParams, AuthResource, Session) {
+angular.module('ccTokenSecurity.provider', ['ui.router'])
+    .provider('ccTokenSecurity', function($stateProvider) {
+
+        var tokenKey = 'x-auth-token';
+        var userKey = 'user';
+
+        var loginState = {
+            state: 'login',
+            url: '/login',
+            templateUrl: 'views/login.html',
+            nextState: 'main',
+            originalPath: true
+        };
+
+        var logoutState = {
+            state: 'logout',
+            url: '/logout',
+            controller: 'LogoutController',
+            nextState: 'login'
+        };
+
+        var accessForbidden = {
+            state: 'accessForbidden',
+            url: '/accessForbidden'
+        };
+
+        this.setTokenKey = function(key) {
+            tokenKey = key;
+        };
+
+        this.setUserKey = function(key) {
+            userKey = key;
+        };
+
+        this.login = function(obj) {
+            _state(loginState, obj);
+        };
+
+        this.logout = function(obj) {
+            _state(logoutState, obj);
+        };
+
+        this.accessForbidden = function(obj) {
+            _state(accessForbidden, obj);
+        };
+
+        function _state(dest, src) {
+            angular.extend(dest, src);
+            $stateProvider.state(dest.state, dest);
+        }
+
+        this.$get = function() {
+            return {
+                getTokenKey: function() {
+                    return tokenKey;
+                },
+                getUserKey: function() {
+                    return userKey;
+                },
+                getLogin: function() {
+                    return loginState;
+                },
+                getLogout: function() {
+                    return logoutState;
+                },
+                getAccessForbidden: function() {
+                    return accessForbidden;
+                }
+            };
+        };
+    });
+'use strict';
+
+angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scope', '$rootScope', '$location', '$state', '$stateParams', 'AuthResource','Session', 'ccTokenSecurity',
+    function ($http, $scope, $rootScope, $location, $state, $stateParams, AuthResource, Session, ccTokenSecurity) {
+
+        var login = ccTokenSecurity.getLogin();
 
         function redirectToOriginalPath() {
-            if ($rootScope.originalPath) {
+            if (login.originalPath && $rootScope.originalPath) {
                 $location.path($rootScope.originalPath);
                 delete $rootScope.originalPath;
             } else {
-                $state.go('global.dashboard');
+                $state.go(login.nextState);
             }
         }
 
         $scope.login = function (username, password) {
-            var urlParameters = $.param({username: username, password: password});
-            AuthResource.authenticate(urlParameters).$promise
+            AuthResource.authenticate('username=' + username + '&password=' + password).$promise // TODO
                 .then(function (user) {
-                    $scope.$parent.currentUser = user;
+                    $scope.$parent.currentUser = user; // TODO populating parentScope is not a good idea
                     Session.create(user);
                     redirectToOriginalPath();
                 }).catch(function (response) {
@@ -225,8 +273,8 @@ angular.module('security').controller('LoginController', ['$http', '$scope', '$r
         }]);
 'use strict';
 
-angular.module('security').controller('LogoutController', ['$state', 'Session',
-    function ($state, Session) {
+angular.module('ccTokenSecurity').controller('LogoutController', ['$state', 'Session', 'ccTokenSecurity',
+    function ($state, Session, ccTokenSecurity) {
         Session.invalidate();
-        $state.go('login');
+        $state.go(ccTokenSecurity.getLogout().nextState);
     }]);

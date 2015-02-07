@@ -1,15 +1,16 @@
 'use strict';
 
-angular.module('security.interceptor', ['security.events', 'security.storage'])
+angular.module('ccTokenSecurity.interceptor', ['ccTokenSecurity.events', 'ccTokenSecurity.storage', 'ccTokenSecurity.provider'])
 
-.factory('securityInterceptor', ['$rootScope', '$q', 'Session', 'AUTH_EVENTS','TOKEN_KEY',
-    function ($rootScope, $q, Session, AUTH_EVENTS, TOKEN_KEY) {
+.factory('securityInterceptor', ['$rootScope', '$q', 'Session', 'AUTH_EVENTS','ccTokenSecurity',
+    function ($rootScope, $q, Session, AUTH_EVENTS, ccTokenSecurity) {
 
         var securityInterceptor = {
             request: function (config) {
                 var authToken = Session.authToken();
+                var tokenKey = ccTokenSecurity.getTokenKey();
                 if (authToken) {
-                    config.headers[TOKEN_KEY] = authToken;
+                    config.headers[tokenKey] = authToken;
                 }
                 return config;
             },

@@ -12,10 +12,10 @@ module.exports = function(grunt) {
             dist: {
                 src: ['src/security.js',
                       'src/events.js',
-                      'src/roles.js',
                       'src/service.js',
                       'src/interceptor.js',
                       'src/storage.js',
+                      'src/provider.js',
                       'src/LoginController.js',
                       'src/LogoutController.js'
                 ],
@@ -74,11 +74,22 @@ module.exports = function(grunt) {
                     logLevel: grunt.LOG_DEBUG,
                     files: [
                         'bower_components/angular/angular.js',
+                        'bower_components/angular-resource/angular-resource.js',
                         'bower_components/angular-mocks/angular-mocks.js',
                         'bower_components/angular-local-storage/dist/angular-local-storage.js',
+                        'bower_components/angular-ui-router/release/angular-ui-router.js',
                         'release/cc-token-security.js',
-                        'test/**/*.js'
-                    ]
+                        'test/**/*.js',
+
+                        'test/views/*.html'
+                    ],
+                    preprocessors: {
+                        //location of templates
+                        'test/views/*.html': ['html2js']
+                    }
+                    /*ngHtml2JsPreprocessor: {
+
+                    }*/
                 }
             }
         }

@@ -1,6 +1,6 @@
-describe('security.service module', function(){
+describe('module ccTokenSecurity.service: ', function(){
 
-    beforeEach(module('security.service'));
+    beforeEach(module('ccTokenSecurity.service'));
 
     var user = {
         login: 'user1',
