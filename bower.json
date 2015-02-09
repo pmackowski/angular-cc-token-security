@@ -5,7 +5,7 @@
     "Pawel Mackowski <pmackowski@coffeecode.pl>"
   ],
   "description": "Angular token security",
-  "main": "release/cc-token-security.js",
+  "main": "release/angular-cc-token-security.js",
   "keywords": [
     "globals"
   ],

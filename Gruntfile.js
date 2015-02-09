@@ -19,7 +19,7 @@ module.exports = function(grunt) {
                       'src/LoginController.js',
                       'src/LogoutController.js'
                 ],
-                dest: 'release/cc-token-security.js'
+                dest: 'release/angular-cc-token-security.js'
             }
         },
 		jshint: {
@@ -59,8 +59,8 @@ module.exports = function(grunt) {
 		uglify: {
 			build: {
 				files:  {},
-				src:    'release/cc-token-security.js',
-				dest:   'release/cc-token-security.min.js'
+				src:    'release/angular-cc-token-security.js',
+				dest:   'release/angular-cc-token-security.min.js'
 			}
 		},
         karma: {
@@ -78,7 +78,7 @@ module.exports = function(grunt) {
                         'bower_components/angular-mocks/angular-mocks.js',
                         'bower_components/angular-local-storage/dist/angular-local-storage.js',
                         'bower_components/angular-ui-router/release/angular-ui-router.js',
-                        'release/cc-token-security.js',
+                        'release/angular-cc-token-security.js',
                         'test/**/*.js',
 
                         'test/views/*.html'
