@@ -62,7 +62,7 @@ describe('module ccTokenSecurity: ', function(){
             // given
             rootScope.originalPath = '/destinationStateBeforeLogin';
             scope.$apply();
-            $httpBackend.expectPOST('authenticate').respond(user2);
+            $httpBackend.expectPOST('authenticate?username=user&password=with_correct_password').respond(user2);
 
             // when
             scope.login('user','with_correct_password');
@@ -80,7 +80,7 @@ describe('module ccTokenSecurity: ', function(){
         it('should login successfully and go to nextState when user fill in correct credentials and originalPath is not defined', function(){
             // given
             scope.$apply();
-            $httpBackend.expectPOST('authenticate').respond(user2);
+            $httpBackend.expectPOST('authenticate?username=user&password=with_correct_password').respond(user2);
 
             // when
             scope.login('user','with_correct_password');
@@ -98,7 +98,7 @@ describe('module ccTokenSecurity: ', function(){
             // given
             rootScope.originalPath = '/protectedDestinationStateBeforeLogin';
             scope.$apply();
-            $httpBackend.expectPOST('authenticate').respond(user1);
+            $httpBackend.expectPOST('authenticate?username=user&password=with_correct_password').respond(user1);
 
             // when
             scope.login('user','with_correct_password');
@@ -116,7 +116,7 @@ describe('module ccTokenSecurity: ', function(){
             // given
             rootScope.originalPath = '/protectedDestinationStateBeforeLogin';
             scope.$apply();
-            $httpBackend.expectPOST('authenticate').respond(user2);
+            $httpBackend.expectPOST('authenticate?username=user&password=with_correct_password').respond(user2);
 
             // when
             scope.login('user','with_correct_password');
@@ -134,7 +134,7 @@ describe('module ccTokenSecurity: ', function(){
             // given
             scope.$apply();
 
-            $httpBackend.expectPOST('authenticate').respond(401, null);
+            $httpBackend.expectPOST('authenticate?username=user&password=with_wrong_credentials').respond(401, null);
             scope.login('user','with_wrong_credentials');
             $httpBackend.flush();
 

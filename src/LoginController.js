@@ -1,7 +1,7 @@
 'use strict';
 
-angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scope', '$rootScope', '$location', '$state', '$stateParams', 'AuthResource','Session', 'ccTokenSecurity',
-    function ($http, $scope, $rootScope, $location, $state, $stateParams, AuthResource, Session, ccTokenSecurity) {
+angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scope', '$rootScope', '$location', '$state', '$stateParams', 'Session', 'ccTokenSecurity',
+    function ($http, $scope, $rootScope, $location, $state, $stateParams, Session, ccTokenSecurity) {
 
         var login = ccTokenSecurity.getLogin();
 
@@ -15,30 +15,22 @@ angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scop
         }
 
         $scope.login = function (username, password) {
-            AuthResource.authenticate('username=' + username + '&password=' + password).$promise // TODO
-                .then(function (user) {
+            var authenticateUrl = ccTokenSecurity.getLogin().authenticateUrl;
+            var authenticateUrlWithCredentials = authenticateUrl + '?username=' + username + '&password=' + password;
+            
+            $http.post(authenticateUrlWithCredentials).
+                success(function(user, status, headers, config) {
                     $scope.$parent.currentUser = user; // TODO populating parentScope is not a good idea
                     Session.create(user);
                     redirectToOriginalPath();
-                }).catch(function (response) {
+                }).
+                error(function(data, status, headers, config) {
                     $scope.authenticationError = true;
                     $scope.tokenExpired = false;
                     Session.invalidate();
                 });
-
         };
 
         $scope.tokenExpired = Session.user() !== null;
 
-    }])
-
-    .factory('AuthResource', ['$resource',
-        function ($resource) {
-            return $resource(':action', {}, {
-                authenticate: {
-                    method: 'POST',
-                    params: {'action': 'authenticate'},
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-                }
-            });
-        }]);
+    }]);

@@ -10,8 +10,10 @@ angular.module('ccTokenSecurity.provider', ['ui.router'])
             state: 'login',
             url: '/login',
             templateUrl: 'views/login.html',
+            controller: 'LoginController',
             nextState: 'main',
-            originalPath: true
+            originalPath: true,
+            authenticateUrl: 'authenticate'
         };
 
         var logoutState = {
