@@ -10,8 +10,8 @@ var security = angular.module('ccTokenSecurity', [
     'ui.router'
 ]);
 
-security.run(['$state', '$rootScope', '$location', 'AUTH_EVENTS', 'Session', 'Auth', 'ccTokenSecurity',
-    function ($state, $rootScope, $location, AUTH_EVENTS, Session, Auth, ccTokenSecurity) {
+security.run(['$state', '$rootScope', '$location', 'AUTH_EVENTS', 'Auth', 'ccTokenSecurity',
+    function ($state, $rootScope, $location, AUTH_EVENTS, Auth, ccTokenSecurity) {
 
         var login = ccTokenSecurity.getLogin();
         var accessForbidden = ccTokenSecurity.getAccessForbidden();
@@ -25,7 +25,7 @@ security.run(['$state', '$rootScope', '$location', 'AUTH_EVENTS', 'Session', 'Au
             }
             if (Auth.isNotAuthenticated()) {
                 event.preventDefault();
-                $rootScope.originalPath = $location.path(); // TODO
+                $rootScope.originalPath = $location.path();
                 $state.go(login.state);
             } else if (!Auth.hasRole(access)) {
                 event.preventDefault();
@@ -55,9 +55,9 @@ angular.module('ccTokenSecurity.events', [])
 
 'use strict';
 
-angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage'])
+angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage','ccTokenSecurity.provider', 'ngResource', 'ui.router'])
 
-.factory('Auth', ['Session', function (Session) {
+.factory('Auth', ['Session', 'ccTokenSecurity', '$state', '$rootScope', '$location',  function (Session, ccTokenSecurity, $state, $rootScope, $location) {
 
     var auth = {};
 
@@ -89,6 +89,27 @@ angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage'])
 
     auth.currentUser = function () {
         return Session.user();
+    };
+
+    auth.login = function(user) {
+        Session.create(user);
+        var login = ccTokenSecurity.getLogin();
+        if (login.originalPath && $rootScope.originalPath) {
+            $location.path($rootScope.originalPath);
+            delete $rootScope.originalPath;
+        } else {
+            $state.go(login.nextState);
+        }
+    };
+        
+    auth.logout = function() {
+        var logout = ccTokenSecurity.getLogout();
+        Session.invalidate();
+        $state.go(logout.nextState);
+    };
+
+    auth.invalidateSession = function() {
+        Session.invalidate();
     };
 
     return auth;
@@ -169,7 +190,11 @@ angular.module('ccTokenSecurity.provider', ['ui.router'])
             controller: 'LoginController',
             nextState: 'main',
             originalPath: true,
-            authenticateUrl: 'authenticate'
+            
+            authenticateUrl: 'authenticate?username={{ username }}&password={{ password }}',
+            onInit: function($scope, Auth) {},
+            onLoginSuccess: function($scope, user) {},
+            onLoginError: function($scope) {}
         };
 
         var logoutState = {
@@ -231,45 +256,33 @@ angular.module('ccTokenSecurity.provider', ['ui.router'])
     });
 'use strict';
 
-angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scope', '$rootScope', '$location', '$state', '$stateParams', 'Session', 'ccTokenSecurity',
-    function ($http, $scope, $rootScope, $location, $state, $stateParams, Session, ccTokenSecurity) {
+angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scope', 'Auth', 'ccTokenSecurity',
+    function ($http, $scope, Auth, ccTokenSecurity) {
 
         var login = ccTokenSecurity.getLogin();
-
-        function redirectToOriginalPath() {
-            if (login.originalPath && $rootScope.originalPath) {
-                $location.path($rootScope.originalPath);
-                delete $rootScope.originalPath;
-            } else {
-                $state.go(login.nextState);
-            }
-        }
-
+        login.onInit($scope, Auth);
+        
         $scope.login = function (username, password) {
-            var authenticateUrl = ccTokenSecurity.getLogin().authenticateUrl;
-            var authenticateUrlWithCredentials = authenticateUrl + '?username=' + username + '&password=' + password;
+            var usernamePattern = /{{\s*username\s*}}/;
+            var passwordPattern = /{{\s*password\s*}}/;
             
-            $http.post(authenticateUrlWithCredentials).
+            var authenticateUrl = login.authenticateUrl.replace(usernamePattern, username).replace(passwordPattern, password);
+
+            $http.post(authenticateUrl).
                 success(function(user, status, headers, config) {
-                    $scope.$parent.currentUser = user; // TODO populating parentScope is not a good idea
-                    Session.create(user);
-                    redirectToOriginalPath();
+                    Auth.login(user);
+                    login.onLoginSuccess($scope, user);
                 }).
                 error(function(data, status, headers, config) {
-                    $scope.authenticationError = true;
-                    $scope.tokenExpired = false;
-                    Session.invalidate();
+                    Auth.invalidateSession();
+                    login.onLoginError($scope);
                 });
         };
-
-        $scope.tokenExpired = Session.user() !== null;
 
     }]);
 'use strict';
 
-angular.module('ccTokenSecurity').controller('LogoutController', ['$state', 'Session', 'ccTokenSecurity',
-    function ($state, Session, ccTokenSecurity) {
-        var logout = ccTokenSecurity.getLogout();
-        Session.invalidate();
-        $state.go(logout.nextState);
+angular.module('ccTokenSecurity').controller('LogoutController', ['Auth',
+    function (Auth) {
+        Auth.logout();
     }]);

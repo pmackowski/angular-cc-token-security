@@ -1,8 +1,8 @@
 'use strict';
 
-angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage'])
+angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage','ccTokenSecurity.provider', 'ngResource', 'ui.router'])
 
-.factory('Auth', ['Session', function (Session) {
+.factory('Auth', ['Session', 'ccTokenSecurity', '$state', '$rootScope', '$location',  function (Session, ccTokenSecurity, $state, $rootScope, $location) {
 
     var auth = {};
 
@@ -34,6 +34,27 @@ angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage'])
 
     auth.currentUser = function () {
         return Session.user();
+    };
+
+    auth.login = function(user) {
+        Session.create(user);
+        var login = ccTokenSecurity.getLogin();
+        if (login.originalPath && $rootScope.originalPath) {
+            $location.path($rootScope.originalPath);
+            delete $rootScope.originalPath;
+        } else {
+            $state.go(login.nextState);
+        }
+    };
+        
+    auth.logout = function() {
+        var logout = ccTokenSecurity.getLogout();
+        Session.invalidate();
+        $state.go(logout.nextState);
+    };
+
+    auth.invalidateSession = function() {
+        Session.invalidate();
     };
 
     return auth;

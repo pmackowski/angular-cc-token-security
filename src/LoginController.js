@@ -1,36 +1,26 @@
 'use strict';
 
-angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scope', '$rootScope', '$location', '$state', '$stateParams', 'Session', 'ccTokenSecurity',
-    function ($http, $scope, $rootScope, $location, $state, $stateParams, Session, ccTokenSecurity) {
+angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scope', 'Auth', 'ccTokenSecurity',
+    function ($http, $scope, Auth, ccTokenSecurity) {
 
         var login = ccTokenSecurity.getLogin();
-
-        function redirectToOriginalPath() {
-            if (login.originalPath && $rootScope.originalPath) {
-                $location.path($rootScope.originalPath);
-                delete $rootScope.originalPath;
-            } else {
-                $state.go(login.nextState);
-            }
-        }
-
+        login.onInit($scope, Auth);
+        
         $scope.login = function (username, password) {
-            var authenticateUrl = ccTokenSecurity.getLogin().authenticateUrl;
-            var authenticateUrlWithCredentials = authenticateUrl + '?username=' + username + '&password=' + password;
+            var usernamePattern = /{{\s*username\s*}}/;
+            var passwordPattern = /{{\s*password\s*}}/;
             
-            $http.post(authenticateUrlWithCredentials).
+            var authenticateUrl = login.authenticateUrl.replace(usernamePattern, username).replace(passwordPattern, password);
+
+            $http.post(authenticateUrl).
                 success(function(user, status, headers, config) {
-                    $scope.$parent.currentUser = user; // TODO populating parentScope is not a good idea
-                    Session.create(user);
-                    redirectToOriginalPath();
+                    Auth.login(user);
+                    login.onLoginSuccess($scope, user);
                 }).
                 error(function(data, status, headers, config) {
-                    $scope.authenticationError = true;
-                    $scope.tokenExpired = false;
-                    Session.invalidate();
+                    Auth.invalidateSession();
+                    login.onLoginError($scope);
                 });
         };
-
-        $scope.tokenExpired = Session.user() !== null;
 
     }]);

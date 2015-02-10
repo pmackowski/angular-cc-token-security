@@ -10,8 +10,8 @@ var security = angular.module('ccTokenSecurity', [
     'ui.router'
 ]);
 
-security.run(['$state', '$rootScope', '$location', 'AUTH_EVENTS', 'Session', 'Auth', 'ccTokenSecurity',
-    function ($state, $rootScope, $location, AUTH_EVENTS, Session, Auth, ccTokenSecurity) {
+security.run(['$state', '$rootScope', '$location', 'AUTH_EVENTS', 'Auth', 'ccTokenSecurity',
+    function ($state, $rootScope, $location, AUTH_EVENTS, Auth, ccTokenSecurity) {
 
         var login = ccTokenSecurity.getLogin();
         var accessForbidden = ccTokenSecurity.getAccessForbidden();
@@ -25,7 +25,7 @@ security.run(['$state', '$rootScope', '$location', 'AUTH_EVENTS', 'Session', 'Au
             }
             if (Auth.isNotAuthenticated()) {
                 event.preventDefault();
-                $rootScope.originalPath = $location.path(); // TODO
+                $rootScope.originalPath = $location.path();
                 $state.go(login.state);
             } else if (!Auth.hasRole(access)) {
                 event.preventDefault();

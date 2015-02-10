@@ -16,7 +16,17 @@ describe('module ccTokenSecurity: ', function(){
                 ccTokenSecurityProvider.login({
                     templateUrl: 'test/views/login.html',
                     nextState: 'stateAfterLogin',
-                    originalPath: true
+                    originalPath: true,
+                    onInit: function($scope, Auth) {
+                        $scope.tokenExpired = Auth.currentUser() !== null;
+                    },
+                    onLoginSuccess: function($scope, user) {
+                        $scope.$parent.currentUser = user;
+                    },
+                    onLoginError: function($scope) {
+                        $scope.authenticationError = true;
+                        $scope.tokenExpired = false;
+                    }
                 });
                 ccTokenSecurityProvider.accessForbidden({});
             });
@@ -40,7 +50,9 @@ describe('module ccTokenSecurity: ', function(){
         roles: ['ROLE_2']
     };
 
-
+    var authenticateUrlWithUser = 'authenticate?username=user&password=with_correct_password';
+    
+    
     describe('LoginController', function() {
 
         var scope, rootScope, mockState, mockSession;
@@ -62,7 +74,7 @@ describe('module ccTokenSecurity: ', function(){
             // given
             rootScope.originalPath = '/destinationStateBeforeLogin';
             scope.$apply();
-            $httpBackend.expectPOST('authenticate?username=user&password=with_correct_password').respond(user2);
+            $httpBackend.expectPOST(authenticateUrlWithUser).respond(user2);
 
             // when
             scope.login('user','with_correct_password');
@@ -80,7 +92,7 @@ describe('module ccTokenSecurity: ', function(){
         it('should login successfully and go to nextState when user fill in correct credentials and originalPath is not defined', function(){
             // given
             scope.$apply();
-            $httpBackend.expectPOST('authenticate?username=user&password=with_correct_password').respond(user2);
+            $httpBackend.expectPOST(authenticateUrlWithUser).respond(user2);
 
             // when
             scope.login('user','with_correct_password');
@@ -98,7 +110,7 @@ describe('module ccTokenSecurity: ', function(){
             // given
             rootScope.originalPath = '/protectedDestinationStateBeforeLogin';
             scope.$apply();
-            $httpBackend.expectPOST('authenticate?username=user&password=with_correct_password').respond(user1);
+            $httpBackend.expectPOST(authenticateUrlWithUser).respond(user1);
 
             // when
             scope.login('user','with_correct_password');
@@ -116,7 +128,7 @@ describe('module ccTokenSecurity: ', function(){
             // given
             rootScope.originalPath = '/protectedDestinationStateBeforeLogin';
             scope.$apply();
-            $httpBackend.expectPOST('authenticate?username=user&password=with_correct_password').respond(user2);
+            $httpBackend.expectPOST(authenticateUrlWithUser).respond(user2);
 
             // when
             scope.login('user','with_correct_password');
