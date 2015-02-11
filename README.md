@@ -35,7 +35,11 @@ When you're done, your setup should look similar to the following:
 
 ##Configuration
 ###login
-**Default:** `...`
+Creates a new ui-router state `state` and registers LoginController. LoginController
+**(1)** adds method login(username, password) to $scope, which sends POST to `authenticateUrl`
+**(2)** contains optional callbacks `onInit`, `onLoginSuccess` and `onLoginError`.
+**(3)** is attached to `templateUrl`
+
 ```js
 myApp.config(function (ccTokenSecurityProvider) {
   ccTokenSecurityProvider.login({
@@ -43,17 +47,59 @@ myApp.config(function (ccTokenSecurityProvider) {
      url: '/login',
      templateUrl: 'views/login.html',
      nextState: 'main',
-     originalPath: true
+     originalPath: true,
+     authenticateUrl: 'authenticate?username={{ username }}&password={{ password }}',
+     onInit: function($scope, Auth) {},
+     onLoginSuccess: function($scope, user) {},
+     onLoginError: function($scope) {}
   });
+});  
 ```
+where
+
+| Attribute       | Description                                  | Default       |
+| --------------- | -------------------------------------------- | ------------- |
+| state           | name for which new login state is registered | 'login'       |
+| url             | the same as in ui-router                     |  '/login'             |
+| templateUrl     |  the same as in ui-router                    | 'views/login.html' |
+| nextState       |  next state after successful login           | 'main' |
+| originalPath    |  redirects to destination Url after successful login | true |
+| authenticateUrl | string containing the URL to which the POST request is sent, {{ username }} and {{ password }} are replaced with username and password respectively  | |
+| onInit          | invoked in LoginController body  | empty function|
+| onLoginSuccess  |  invoked after successful login (enables extending LoginController $scope or invoke additional actions) | empty function |
+| onLoginError    | invoked after unsuccessful login (enables extending LoginController $scope or invoke additional actions) | empty function |
+ 
 ###logout
-**Default:** `...`
+Creates a new ui-router state `state` and registers LogoutController.
 ```js
+myApp.config(function (ccTokenSecurityProvider) {
   ccTokenSecurityProvider.logout({
-     templateUrl: 'views/login.html',
+     state: 'logout',
+     url: '/logout',
      nextState: 'stateAfterLogout'
   });
+}); 
 ```
+where
+ state - name for which new logout state is registered (default: 'logout')
+ url - the same as in ui-router (default: '/logout')
+ nextState - next state after logout (default: 'login')
+
+Under the hood, the definition of LogoutController is very simple, it only invokes Auth.logout().
+If such a definition is not enough, then attach your own controller
+
+```js
+myApp.config(function (ccTokenSecurityProvider) {
+  ccTokenSecurityProvider.logout({
+     nextState: 'stateAfterLogout',
+     controller: function (Auth) {
+        Auth.logout();
+        // additional code here
+     }
+  });
+}); 
+```
+
 ###accessForbidden
 **Default:** `...`
 ```js

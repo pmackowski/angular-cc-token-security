@@ -17,6 +17,7 @@ describe('module ccTokenSecurity: ', function(){
                     templateUrl: 'test/views/login.html',
                     nextState: 'stateAfterLogin',
                     originalPath: true,
+                    authenticateUrl: 'authenticate?username={{ username }}&password={{ password }}',
                     onInit: function($scope, Auth) {
                         $scope.tokenExpired = Auth.currentUser() !== null;
                     },
