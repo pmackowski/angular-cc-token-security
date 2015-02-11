@@ -1,6 +1,8 @@
 angular-cc-token-security
 =========================
-Angular token security module
+Angular token security module. It depends on two projects:  
+**(1)** **[AngularUI Router](https://github.com/angular-ui/ui-router)** for routing management
+**(2)** **[angular-local-storage](https://github.com/grevory/angular-local-storage)** for storing current user and token
 
 ##Get Started
 **(1)** Install angular-cc-token-security<br/>
@@ -35,10 +37,10 @@ When you're done, your setup should look similar to the following:
 
 ##Configuration
 ###login
-Creates a new ui-router state `state` and registers LoginController. LoginController
-**(1)** adds method login(username, password) to $scope, which sends POST to `authenticateUrl`
-**(2)** contains optional callbacks `onInit`, `onLoginSuccess` and `onLoginError`.
-**(3)** is attached to `templateUrl`
+Creates a new ui-router state `state` and registers LoginController. LoginController:
+ - adds method login(username, password) to $scope, which sends POST request to `authenticateUrl`
+ - is attached to `templateUrl`
+ - contains optional callbacks `onInit`, `onLoginSuccess` and `onLoginError`
 
 ```js
 myApp.config(function (ccTokenSecurityProvider) {
@@ -61,12 +63,12 @@ where
 | --------------- | -------------------------------------------- | ------------- |
 | state           | name for which new login state is registered | 'login'       |
 | url             | the same as in ui-router                     |  '/login'             |
-| templateUrl     |  the same as in ui-router                    | 'views/login.html' |
-| nextState       |  next state after successful login           | 'main' |
-| originalPath    |  redirects to destination Url after successful login | true |
+| templateUrl     | the same as in ui-router                    | 'views/login.html' |
+| nextState       | next state after successful login           | 'main' |
+| originalPath    | redirects to destination Url after successful login | true |
 | authenticateUrl | string containing the URL to which the POST request is sent, {{ username }} and {{ password }} are replaced with username and password respectively  | |
 | onInit          | invoked in LoginController body  | empty function|
-| onLoginSuccess  |  invoked after successful login (enables extending LoginController $scope or invoke additional actions) | empty function |
+| onLoginSuccess  | invoked after successful login (enables extending LoginController $scope or invoke additional actions) | empty function |
 | onLoginError    | invoked after unsuccessful login (enables extending LoginController $scope or invoke additional actions) | empty function |
  
 ###logout
@@ -81,12 +83,15 @@ myApp.config(function (ccTokenSecurityProvider) {
 }); 
 ```
 where
- state - name for which new logout state is registered (default: 'logout')
- url - the same as in ui-router (default: '/logout')
- nextState - next state after logout (default: 'login')
 
-Under the hood, the definition of LogoutController is very simple, it only invokes Auth.logout().
-If such a definition is not enough, then attach your own controller
+| Attribute       | Description                                  | Default       |
+| --------------- | -------------------------------------------- | ------------- |
+| state           | name for which new logout state is registered | 'logout'     |
+| url             | the same as in ui-router                     |  '/logout'    |
+| nextState       | next state after logout                      | 'login'       |
+
+Under the hood, the definition of LogoutController is very simple. It only invokes Auth.logout().
+If such a definition is not enough, then attach your own controller:
 
 ```js
 myApp.config(function (ccTokenSecurityProvider) {
@@ -101,20 +106,33 @@ myApp.config(function (ccTokenSecurityProvider) {
 ```
 
 ###accessForbidden
-**Default:** `...`
+Creates a new ui-router state `state`. Authenticated user is redirected to `state`, when trying to access protected resource with
+insufficient privileges. It applies both to state change and to HTTP request, which returns 403 status code.
 ```js
+myApp.config(function (ccTokenSecurityProvider) {
   ccTokenSecurityProvider.accessForbidden({
      state: 'accessForbidden',
      url: '/accessForbidden'
   });
+});
 ```
+where
+| Attribute       | Description                                  | Default       |
+| --------------- | -------------------------------------------- | ------------- |
+| state           | name for which new logout accessForbidden is registered | 'accessForbidden'     |
+| url             | the same as in ui-router                     |  '/accessForbidden'    |
+
 ###setUserKey
 **Default:** `user`
 ```js
+myApp.config(function (ccTokenSecurityProvider) {
   ccTokenSecurityProvider.setUserKey('yourUserKey');
+});
 ```
 ###setTokenKey
 **Default:** `x-auth-token`
 ```js
+myApp.config(function (ccTokenSecurityProvider) {
   ccTokenSecurityProvider.setTokenKey('yourTokenKey');
+});  
 ```
