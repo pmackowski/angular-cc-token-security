@@ -1,7 +1,7 @@
 angular-cc-token-security
 =========================
 Angular token security module. It depends on two projects:  
-**(1)** **[AngularUI Router](https://github.com/angular-ui/ui-router)** for routing management
+**(1)** **[AngularUI Router](https://github.com/angular-ui/ui-router)** for routing management<br/>
 **(2)** **[angular-local-storage](https://github.com/grevory/angular-local-storage)** for storing current user and token
 
 ##Get Started
@@ -68,8 +68,8 @@ where
 | originalPath    | redirects to destination Url after successful login | true |
 | authenticateUrl | string containing the URL to which the POST request is sent, {{ username }} and {{ password }} are replaced with username and password respectively  | |
 | onInit          | invoked in LoginController body  | empty function|
-| onLoginSuccess  | invoked after successful login (enables extending LoginController $scope or invoke additional actions) | empty function |
-| onLoginError    | invoked after unsuccessful login (enables extending LoginController $scope or invoke additional actions) | empty function |
+| onLoginSuccess  | invoked after successful login (enables extending LoginController $scope or invoking additional actions) | empty function |
+| onLoginError    | invoked after unsuccessful login (enables extending LoginController $scope or invoking additional actions) | empty function |
  
 ###logout
 Creates a new ui-router state `state` and registers LogoutController.
@@ -117,6 +117,7 @@ myApp.config(function (ccTokenSecurityProvider) {
 });
 ```
 where
+
 | Attribute       | Description                                  | Default       |
 | --------------- | -------------------------------------------- | ------------- |
 | state           | name for which new logout accessForbidden is registered | 'accessForbidden'     |
@@ -135,4 +136,25 @@ myApp.config(function (ccTokenSecurityProvider) {
 myApp.config(function (ccTokenSecurityProvider) {
   ccTokenSecurityProvider.setTokenKey('yourTokenKey');
 });  
+```
+
+###Configuration Example
+Using all together
+```js
+myApp.config(function (ccTokenSecurityProvider, localStorageServiceProvider) {
+  ccTokenSecurityProvider.login({
+       templateUrl: 'views/common/login.html',
+       nextState: 'dashboard',
+       originalPath: false, // always go to dashboard
+  });
+  ccTokenSecurityProvider.logout({});
+  ccTokenSecurityProvider.accessForbidden({});
+  
+  // local storage 
+  localStorageServiceProvider.setPrefix('myApp')
+                             .setStorageType('sessionStorage');
+  ccTokenSecurityProvider.setUserKey('currentUser');
+  ccTokenSecurityProvider.setTokenKey('xAuthToken');
+  
+}); 
 ```
