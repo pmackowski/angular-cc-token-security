@@ -10,16 +10,16 @@ Module enables protection of ui-router states:
         .state('dashboard', {
             url: '/dashboard',
             templateUrl: 'dashboard/dashboard.html',
-            **access: 'ROLE_USER'**
+            access: 'ROLE_USER'
         });
             
 ```
 It can be applied in HTML as well (after adding to scope, will be explained later on):
 ```html
-<div ng-show="**hasRole('ROLE_USER')**">
+<div ng-show="hasRole('ROLE_USER')">
   only visible to user with ROLE_USER role
 </div>
-<div ng-show="**isAuthenticated**">
+<div ng-show="isAuthenticated">
   only visible to authenticated users
 </div>
 ```
@@ -192,7 +192,7 @@ myApp.controller('AppController', ['$scope', 'Auth', function ($scope, Auth) {
 ```
 In that case, you can show information about current user conditionally: 
 ```html
-<div ng-show="**isAuthenticated**">
+<div ng-show="isAuthenticated">
   You are logged in as {{ currentUser.username }}
 </div>
 ```
@@ -200,11 +200,13 @@ In that case, you can show information about current user conditionally:
 When HTTP POST request is sent to server, JSON is expected in the following format:
 ```js
 {
-    "token": "long_token"
-    "roles": ['ROLE_1','ROLE_2']
-    // other attributes e.g.
+    // mandatory attributes
+    "token": "1mf3h3q15756h9sg9qldaafdudarkbi0ehu8"
+    "roles": ["ROLE_1","ROLE_2"]
+    // optional attributes e.g.
     username: "user1"
     email: "user1@email.com"
+    ...
 }
  ```
    

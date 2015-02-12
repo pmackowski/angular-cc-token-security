@@ -266,7 +266,9 @@ angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scop
             var usernamePattern = /{{\s*username\s*}}/;
             var passwordPattern = /{{\s*password\s*}}/;
             
-            var authenticateUrl = login.authenticateUrl.replace(usernamePattern, username).replace(passwordPattern, password);
+            var authenticateUrl = login.authenticateUrl
+                                        .replace(usernamePattern, username)
+                                        .replace(passwordPattern, password);
 
             $http.post(authenticateUrl).
                 success(function(user, status, headers, config) {
