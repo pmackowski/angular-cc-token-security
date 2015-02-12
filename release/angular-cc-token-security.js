@@ -1,3 +1,11 @@
+/**
+ * Angular token security module based on ui-router and local-storage
+ * @version v0.0.0 - 2015-02-13
+ * @link https://github.com/pmackowski/angular-cc-token-security
+ * @author pmackowski <pmackowski@coffeecode.pl>
+ * @license MIT License, http://www.opensource.org/licenses/MIT
+ */
+(function ( window, angular, undefined ) {
 'use strict';
 
 var security = angular.module('ccTokenSecurity', [
@@ -42,18 +50,12 @@ security.run(['$state', '$rootScope', '$location', 'AUTH_EVENTS', 'Auth', 'ccTok
         });
     }]);
 
-
-
-
-
 angular.module('ccTokenSecurity.events', [])
 
 .constant('AUTH_EVENTS', {
     notAuthenticated: 'notAuthenticated',
     notAuthorized: 'notAuthorized'
 });
-
-'use strict';
 
 angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage','ccTokenSecurity.provider', 'ngResource', 'ui.router'])
 
@@ -114,9 +116,6 @@ angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage','ccTokenSec
 
     return auth;
 }]);
-
-'use strict';
-
 angular.module('ccTokenSecurity.interceptor', ['ccTokenSecurity.events', 'ccTokenSecurity.storage', 'ccTokenSecurity.provider'])
 
 .factory('securityInterceptor', ['$rootScope', '$q', 'Session', 'AUTH_EVENTS','ccTokenSecurity',
@@ -148,8 +147,6 @@ angular.module('ccTokenSecurity.interceptor', ['ccTokenSecurity.events', 'ccToke
 .config(['$httpProvider', function($httpProvider) {
       $httpProvider.interceptors.push('securityInterceptor');
 }]);
-'use strict';
-
 angular.module('ccTokenSecurity.storage', ['LocalStorageModule', 'ccTokenSecurity.provider'])
 
     .factory('Session', ['localStorageService', 'ccTokenSecurity',
@@ -175,8 +172,6 @@ angular.module('ccTokenSecurity.storage', ['LocalStorageModule', 'ccTokenSecurit
             };
         }
     ]);
-'use strict';
-
 angular.module('ccTokenSecurity.provider', ['ui.router'])
     .provider('ccTokenSecurity', function($stateProvider) {
 
@@ -254,8 +249,6 @@ angular.module('ccTokenSecurity.provider', ['ui.router'])
             };
         };
     });
-'use strict';
-
 angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scope', 'Auth', 'ccTokenSecurity',
     function ($http, $scope, Auth, ccTokenSecurity) {
 
@@ -282,9 +275,7 @@ angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scop
         };
 
     }]);
-'use strict';
-
 angular.module('ccTokenSecurity').controller('LogoutController', ['Auth',
     function (Auth) {
         Auth.logout();
-    }]);
+    }]);})( window, window.angular );

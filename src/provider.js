@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('ccTokenSecurity.provider', ['ui.router'])
     .provider('ccTokenSecurity', function($stateProvider) {
 

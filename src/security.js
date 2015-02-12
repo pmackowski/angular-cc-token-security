@@ -41,7 +41,3 @@ security.run(['$state', '$rootScope', '$location', 'AUTH_EVENTS', 'Auth', 'ccTok
             $state.go(accessForbidden.state);
         });
     }]);
-
-
-
-

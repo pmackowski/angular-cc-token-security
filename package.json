@@ -1,9 +1,10 @@
 {
-  "author": "pmackowski",
+  "author": "pmackowski <pmackowski@coffeecode.pl>",
   "name": "angular-cc-token-security",
-  "version": "0.0.0",
-  "description": "Angular token security module",
-  "homepage": "",
+  "version": "0.1.0",
+  "license": "MIT",
+  "description": "Angular token security module based on ui-router and local-storage",
+  "homepage": "https://github.com/pmackowski/angular-cc-token-security",
   "dependencies": {},
   "devDependencies": {
     "express": "~3.4.4",
@@ -17,10 +18,10 @@
     "karma-ng-html2js-preprocessor": "^0.1.2"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+      "test": "grunt test"
   },
-  "repository": "",
-  "engines": {
-    "node": "0.10.10"
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/pmackowski/angular-cc-token-security.git"
   }
 }

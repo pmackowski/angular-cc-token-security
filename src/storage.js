@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('ccTokenSecurity.storage', ['LocalStorageModule', 'ccTokenSecurity.provider'])
 
     .factory('Session', ['localStorageService', 'ccTokenSecurity',

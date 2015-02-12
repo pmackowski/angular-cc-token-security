@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scope', 'Auth', 'ccTokenSecurity',
     function ($http, $scope, Auth, ccTokenSecurity) {
 

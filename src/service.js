@@ -1,5 +1,3 @@
-'use strict';
-
 angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage','ccTokenSecurity.provider', 'ngResource', 'ui.router'])
 
 .factory('Auth', ['Session', 'ccTokenSecurity', '$state', '$rootScope', '$location',  function (Session, ccTokenSecurity, $state, $rootScope, $location) {

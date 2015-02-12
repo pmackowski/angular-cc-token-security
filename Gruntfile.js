@@ -8,7 +8,24 @@ module.exports = function(grunt) {
 	grunt.loadNpmTasks('grunt-karma');
 
 	grunt.initConfig({
+        pkg: grunt.file.readJSON('package.json'),
+        meta: {
+            banner: [
+                '/**',
+                ' * <%= pkg.description %>',
+                ' * @version v<%= pkg.version %> - <%= grunt.template.today("yyyy-mm-dd") %>',
+                ' * @link <%= pkg.homepage %>',
+                ' * @author <%= pkg.author %>',
+                ' * @license MIT License, http://www.opensource.org/licenses/MIT',
+                ' */'
+            ].join('\n')
+        },
         concat: {
+            options: {
+                banner: '<%= meta.banner %>' + '\n' +
+                    '(function ( window, angular, undefined ) {' + '\n',
+                footer: '})( window, window.angular );'
+            },
             dist: {
                 src: ['src/security.js',
                       'src/events.js',
@@ -25,7 +42,7 @@ module.exports = function(grunt) {
 		jshint: {
 			options: {
 				//force:          true,
-				globalstrict:   true,
+				globalstrict:   false,
 				//sub:            true,
 				node: true,
 				loopfunc: true,
