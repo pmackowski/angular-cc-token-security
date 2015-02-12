@@ -74,6 +74,9 @@ module.exports = function(grunt) {
 			}
 		},
 		uglify: {
+            options: {
+                banner: '<%= meta.banner %>'
+            },
 			build: {
 				files:  {},
 				src:    'release/angular-cc-token-security.js',

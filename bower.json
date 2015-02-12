@@ -4,10 +4,16 @@
   "authors": [
     "Pawel Mackowski <pmackowski@coffeecode.pl>"
   ],
-  "description": "Angular token security",
+  "description": "Angular token security module based on ui-router and local-storage",
   "main": "release/angular-cc-token-security.js",
   "keywords": [
-    "globals"
+    "AngularJS",
+    "Angular",
+    "token",
+    "security",
+    "authorization",
+    "authentication",
+    "roles",
   ],
   "license": "MIT",
   "homepage": "https://github.com/pmackowski/angular-cc-token-security",
