@@ -4,6 +4,26 @@ Angular token security module. It depends on two projects:
 **(1)** **[AngularUI Router](https://github.com/angular-ui/ui-router)** for routing management<br/>
 **(2)** **[angular-local-storage](https://github.com/grevory/angular-local-storage)** for storing current user and token
 
+Module enables protection of ui-router states: 
+```js
+   $stateProvider
+        .state('dashboard', {
+            url: '/dashboard',
+            templateUrl: 'dashboard/dashboard.html',
+            **access: 'ROLE_USER'**
+        });
+            
+```
+It can be applied in HTML as well (after adding to scope, will be explained later on):
+```html
+<div ng-show="**hasRole('ROLE_USER')**">
+  only visible to user with ROLE_USER role
+</div>
+<div ng-show="**isAuthenticated**">
+  only visible to authenticated users
+</div>
+```
+
 ##Get Started
 **(1)** Install angular-cc-token-security<br/>
 **Bower:**
@@ -158,3 +178,33 @@ myApp.config(function (ccTokenSecurityProvider, localStorageServiceProvider) {
   
 }); 
 ```
+
+##Module API - Auth service
+Auth service should be used mainly to get access to currentUser and hasRole/isAuthenticated functions in HTML:
+```js
+myApp.controller('AppController', ['$scope', 'Auth', function ($scope, Auth) {
+
+    $scope.currentUser = Auth.currentUser();
+    $scope.hasRole = Auth.hasRole;
+    $scope.isAuthenticated = Auth.isAuthenticated(); 
+    
+}]);
+```
+In that case, you can show information about current user conditionally: 
+```html
+<div ng-show="**isAuthenticated**">
+  You are logged in as {{ currentUser.username }}
+</div>
+```
+##Backend
+When HTTP POST request is sent to server, JSON is expected in the following format:
+```js
+{
+    "token": "long_token"
+    "roles": ['ROLE_1','ROLE_2']
+    // other attributes e.g.
+    username: "user1"
+    email: "user1@email.com"
+}
+ ```
+   
