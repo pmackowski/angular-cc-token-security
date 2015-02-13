@@ -28,7 +28,7 @@ It can be applied in HTML as well (after adding to scope, will be explained late
 **(1)** Install angular-cc-token-security<br/>
 **Bower:**
 ```bash
-$ bower install pmackowski/angular-cc-token-security --save
+$ bower install angular-cc-token-security --save
 ```
 **(2)** Include `angular-cc-token-security.js` (or `angular-cc-token-security.min.js`) in your `index.html`, after including Angular itself.
 
