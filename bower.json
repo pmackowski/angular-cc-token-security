@@ -13,7 +13,7 @@
     "security",
     "authorization",
     "authentication",
-    "roles",
+    "roles"
   ],
   "license": "MIT",
   "homepage": "https://github.com/pmackowski/angular-cc-token-security",
