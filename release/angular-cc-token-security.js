@@ -1,6 +1,6 @@
 /**
  * Angular token security module based on ui-router and local-storage
- * @version v0.1.0 - 2015-02-13
+ * @version v0.1.0 - 2015-03-17
  * @link https://github.com/pmackowski/angular-cc-token-security
  * @author pmackowski <pmackowski@coffeecode.pl>
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -275,7 +275,19 @@ angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scop
         };
 
     }]);
-angular.module('ccTokenSecurity').controller('LogoutController', ['Auth',
-    function (Auth) {
-        Auth.logout();
+angular.module('ccTokenSecurity').controller('LogoutController', ['$scope', '$http', 'Auth', 'ccTokenSecurity',
+    function ($scope, $http, Auth, ccTokenSecurity) {
+        var logout = ccTokenSecurity.getLogout();
+
+        if (logout.logoutUrl) {
+            $http.get(logout.logoutUrl).
+                success(function(user, status, headers, config) { }).
+                error(function(data, status, headers, config) { }).
+                finally(function() {
+                    Auth.logout();
+                });
+        } else {
+            Auth.logout();
+        }
+        
     }]);})( window, window.angular );
