@@ -1,6 +1,6 @@
 /**
  * Angular token security module based on ui-router and local-storage
- * @version v0.1.0 - 2015-03-17
+ * @version v0.1.1 - 2015-03-17
  * @link https://github.com/pmackowski/angular-cc-token-security
  * @author pmackowski <pmackowski@coffeecode.pl>
  * @license MIT License, http://www.opensource.org/licenses/MIT
