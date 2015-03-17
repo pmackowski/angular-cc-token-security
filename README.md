@@ -109,8 +109,10 @@ where
 | state           | name for which new logout state is registered | 'logout'     |
 | url             | the same as in ui-router                     |  '/logout'    |
 | nextState       | next state after logout                      | 'login'       |
+| logoutUrl       | HTTP GET is sent to logoutUrl to evict token | not defined   |
 
-Under the hood, the definition of LogoutController is very simple. It only invokes Auth.logout().
+Under the hood, the definition of LogoutController is very simple. It only invokes Auth.logout()
+and optionally sent HTTP GET to logoutUrl.
 If such a definition is not enough, then attach your own controller:
 
 ```js
