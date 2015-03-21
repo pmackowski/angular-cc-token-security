@@ -22,9 +22,18 @@ describe('module ccTokenSecurity.service: ', function(){
             // given
             var state = {};
             // when
-            var actual = mockAuth.permitAll(state.access);
+            var actual = mockAuth.permitAll('stateName', state.access);
             // then
             expect(actual).toBeTruthy();
+        });
+
+        it('should prevent from permitAll when access is defined', function(){
+            // given
+            var state = { access: 'ROLE_2'};
+            // when
+            var actual = mockAuth.permitAll('stateName', state.access);
+            // then
+            expect(actual).toBeFalsy();
         });
 
         it('should authenticate user', function(){

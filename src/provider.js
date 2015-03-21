@@ -3,6 +3,7 @@ angular.module('ccTokenSecurity.provider', ['ui.router'])
 
         var tokenKey = 'x-auth-token';
         var userKey = 'user';
+        var authenticationRequired = false;
 
         var loginState = {
             state: 'login',
@@ -38,6 +39,10 @@ angular.module('ccTokenSecurity.provider', ['ui.router'])
             userKey = key;
         };
 
+        this.requiresAuthentication = function() {
+            authenticationRequired = true;
+        };
+        
         this.login = function(obj) {
             _state(loginState, obj);
         };
@@ -62,6 +67,9 @@ angular.module('ccTokenSecurity.provider', ['ui.router'])
                 },
                 getUserKey: function() {
                     return userKey;
+                },
+                isAuthenticationRequired: function() {
+                    return authenticationRequired;
                 },
                 getLogin: function() {
                     return loginState;

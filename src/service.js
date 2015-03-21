@@ -3,9 +3,16 @@ angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage','ccTokenSec
 .factory('Auth', ['Session', 'ccTokenSecurity', '$state', '$rootScope', '$location',  function (Session, ccTokenSecurity, $state, $rootScope, $location) {
 
     var auth = {};
-
-    auth.permitAll = function (role) {
-        return !angular.isDefined(role);
+    
+    auth.permitAll = function (state, role) {
+        var login = ccTokenSecurity.getLogin();
+        var logout = ccTokenSecurity.getLogout();
+        var accessForbidden = ccTokenSecurity.getAccessForbidden();
+        if (login.state === state || logout.state === state || accessForbidden.state === state) {
+            return true;
+        }
+        var authenticationRequired = ccTokenSecurity.isAuthenticationRequired();
+        return !authenticationRequired && !angular.isDefined(role);
     };
 
     auth.isAuthenticated = function () {
@@ -17,6 +24,9 @@ angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage','ccTokenSec
     };
 
     auth.hasRole = function (role) {
+        if (!role) {
+            return true;
+        }
         var user = Session.user();
         if (user === null) {
             return false;

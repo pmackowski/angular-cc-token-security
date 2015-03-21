@@ -159,6 +159,14 @@ myApp.config(function (ccTokenSecurityProvider) {
   ccTokenSecurityProvider.setTokenKey('yourTokenKey');
 });  
 ```
+###requiresAuthentication
+All states except predefined login, logout and accessForbidden become available only for authenticated users.
+**Default:** `false`
+```js
+myApp.config(function (ccTokenSecurityProvider) {
+  ccTokenSecurityProvider.requiresAuthentication();
+});  
+```
 
 ###Configuration Example
 Using all together

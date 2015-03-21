@@ -20,7 +20,8 @@ security.run(['$state', '$rootScope', '$location', 'AUTH_EVENTS', 'Auth', 'ccTok
 
         $rootScope.$on('$stateChangeStart', function (event, toState) {
             var access = toState.access;
-            if (Auth.permitAll(access)) {
+            var state = toState.state;
+            if (Auth.permitAll(state, access)) {
                 return;
             }
             if (Auth.isNotAuthenticated()) {

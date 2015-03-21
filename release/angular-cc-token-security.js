@@ -1,6 +1,6 @@
 /**
  * Angular token security module based on ui-router and local-storage
- * @version v0.1.1 - 2015-03-17
+ * @version v0.1.2 - 2015-03-21
  * @link https://github.com/pmackowski/angular-cc-token-security
  * @author pmackowski <pmackowski@coffeecode.pl>
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -28,7 +28,8 @@ security.run(['$state', '$rootScope', '$location', 'AUTH_EVENTS', 'Auth', 'ccTok
 
         $rootScope.$on('$stateChangeStart', function (event, toState) {
             var access = toState.access;
-            if (Auth.permitAll(access)) {
+            var state = toState.state;
+            if (Auth.permitAll(state, access)) {
                 return;
             }
             if (Auth.isNotAuthenticated()) {
@@ -62,9 +63,16 @@ angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage','ccTokenSec
 .factory('Auth', ['Session', 'ccTokenSecurity', '$state', '$rootScope', '$location',  function (Session, ccTokenSecurity, $state, $rootScope, $location) {
 
     var auth = {};
-
-    auth.permitAll = function (role) {
-        return !angular.isDefined(role);
+    
+    auth.permitAll = function (state, role) {
+        var login = ccTokenSecurity.getLogin();
+        var logout = ccTokenSecurity.getLogout();
+        var accessForbidden = ccTokenSecurity.getAccessForbidden();
+        if (login.state === state || logout.state === state || accessForbidden.state === state) {
+            return true;
+        }
+        var authenticationRequired = ccTokenSecurity.isAuthenticationRequired();
+        return !authenticationRequired && !angular.isDefined(role);
     };
 
     auth.isAuthenticated = function () {
@@ -76,6 +84,9 @@ angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage','ccTokenSec
     };
 
     auth.hasRole = function (role) {
+        if (!role) {
+            return true;
+        }
         var user = Session.user();
         if (user === null) {
             return false;
@@ -177,6 +188,7 @@ angular.module('ccTokenSecurity.provider', ['ui.router'])
 
         var tokenKey = 'x-auth-token';
         var userKey = 'user';
+        var authenticationRequired = false;
 
         var loginState = {
             state: 'login',
@@ -212,6 +224,10 @@ angular.module('ccTokenSecurity.provider', ['ui.router'])
             userKey = key;
         };
 
+        this.requiresAuthentication = function() {
+            authenticationRequired = true;
+        };
+        
         this.login = function(obj) {
             _state(loginState, obj);
         };
@@ -236,6 +252,9 @@ angular.module('ccTokenSecurity.provider', ['ui.router'])
                 },
                 getUserKey: function() {
                     return userKey;
+                },
+                isAuthenticationRequired: function() {
+                    return authenticationRequired;
                 },
                 getLogin: function() {
                     return loginState;
