@@ -17,17 +17,7 @@ describe('module ccTokenSecurity: ', function(){
                     templateUrl: 'test/views/login.html',
                     nextState: 'stateAfterLogin',
                     originalPath: true,
-                    authenticateUrl: 'authenticate?username={{ username }}&password={{ password }}',
-                    onInit: function($scope, Auth) {
-                        $scope.tokenExpired = Auth.currentUser() !== null;
-                    },
-                    onLoginSuccess: function($scope, user) {
-                        $scope.$parent.currentUser = user;
-                    },
-                    onLoginError: function($scope) {
-                        $scope.authenticationError = true;
-                        $scope.tokenExpired = false;
-                    }
+                    authenticateUrl: 'authenticate?username={{ username }}&password={{ password }}'
                 });
                 ccTokenSecurityProvider.accessForbidden({});
             });
@@ -85,7 +75,6 @@ describe('module ccTokenSecurity: ', function(){
             expect(mockSession.user()).toEqual(user2);
             expect(mockSession.authToken()).toEqual('token2');
 
-            expect(scope.$parent.currentUser).not.toBeNull();
             expect(mockState.current.name).toBe('destinationStateBeforeLogin');
         });
 
@@ -103,7 +92,6 @@ describe('module ccTokenSecurity: ', function(){
             expect(mockSession.user()).toEqual(user2);
             expect(mockSession.authToken()).toEqual('token2');
 
-            expect(scope.$parent.currentUser).not.toBeNull();
             expect(mockState.current.name).toBe('stateAfterLogin');
         });
 
@@ -121,7 +109,6 @@ describe('module ccTokenSecurity: ', function(){
             expect(mockSession.user()).toEqual(user1);
             expect(mockSession.authToken()).toEqual('token1');
 
-            expect(scope.$parent.currentUser).not.toBeNull();
             expect(mockState.current.name).toBe('protectedDestinationStateBeforeLogin');
         });
 
@@ -139,7 +126,6 @@ describe('module ccTokenSecurity: ', function(){
             expect(mockSession.user()).toEqual(user2);
             expect(mockSession.authToken()).toEqual('token2');
 
-            expect(scope.$parent.currentUser).not.toBeNull();
             expect(mockState.current.name).toBe('accessForbidden');
         });
 
@@ -154,7 +140,7 @@ describe('module ccTokenSecurity: ', function(){
             // then
             expect(mockSession.user()).toBeNull();
             expect(mockSession.authToken()).toBeNull();
-            expect(scope.authenticationError).toBeTruthy();
+            expect(scope.authenticationFailed).toBeTruthy();
             expect(scope.tokenExpired).toBeFalsy();
         });
 

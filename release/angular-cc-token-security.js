@@ -1,6 +1,6 @@
 /**
  * Angular token security module based on ui-router and local-storage
- * @version v0.1.2 - 2015-03-21
+ * @version v0.1.3 - 2015-03-27
  * @link https://github.com/pmackowski/angular-cc-token-security
  * @author pmackowski <pmackowski@coffeecode.pl>
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -55,7 +55,10 @@ angular.module('ccTokenSecurity.events', [])
 
 .constant('AUTH_EVENTS', {
     notAuthenticated: 'notAuthenticated',
-    notAuthorized: 'notAuthorized'
+    notAuthorized: 'notAuthorized',
+    loginSuccessful: 'loginSuccessful',
+    loginFailed: 'loginFailed',
+    logout: 'logout'
 });
 
 angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage','ccTokenSecurity.provider', 'ngResource', 'ui.router'])
@@ -103,7 +106,7 @@ angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage','ccTokenSec
     auth.currentUser = function () {
         return Session.user();
     };
-
+    
     auth.login = function(user) {
         Session.create(user);
         var login = ccTokenSecurity.getLogin();
@@ -198,10 +201,7 @@ angular.module('ccTokenSecurity.provider', ['ui.router'])
             nextState: 'main',
             originalPath: true,
             
-            authenticateUrl: 'authenticate?username={{ username }}&password={{ password }}',
-            onInit: function($scope, Auth) {},
-            onLoginSuccess: function($scope, user) {},
-            onLoginError: function($scope) {}
+            authenticateUrl: 'authenticate?username={{ username }}&password={{ password }}'
         };
 
         var logoutState = {
@@ -268,11 +268,11 @@ angular.module('ccTokenSecurity.provider', ['ui.router'])
             };
         };
     });
-angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scope', 'Auth', 'ccTokenSecurity',
-    function ($http, $scope, Auth, ccTokenSecurity) {
+angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scope', '$rootScope', 'Auth', 'AUTH_EVENTS', 'ccTokenSecurity',
+    function ($http, $scope, $rootScope, Auth, AUTH_EVENTS, ccTokenSecurity) {
 
         var login = ccTokenSecurity.getLogin();
-        login.onInit($scope, Auth);
+        $scope.tokenExpired = Auth.currentUser() !== null;
         
         $scope.login = function (username, password) {
             var usernamePattern = /{{\s*username\s*}}/;
@@ -285,28 +285,19 @@ angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scop
             $http.post(authenticateUrl).
                 success(function(user, status, headers, config) {
                     Auth.login(user);
-                    login.onLoginSuccess($scope, user);
+                    $rootScope.$broadcast(AUTH_EVENTS.loginSuccessful, user);
                 }).
                 error(function(data, status, headers, config) {
                     Auth.invalidateSession();
-                    login.onLoginError($scope);
+                    $scope.authenticationFailed = true;
+                    $scope.tokenExpired = false;
+                    $rootScope.$broadcast(AUTH_EVENTS.loginFailed);
                 });
         };
 
     }]);
-angular.module('ccTokenSecurity').controller('LogoutController', ['$scope', '$http', 'Auth', 'ccTokenSecurity',
-    function ($scope, $http, Auth, ccTokenSecurity) {
-        var logout = ccTokenSecurity.getLogout();
-
-        if (logout.logoutUrl) {
-            $http.get(logout.logoutUrl).
-                success(function(user, status, headers, config) { }).
-                error(function(data, status, headers, config) { }).
-                finally(function() {
-                    Auth.logout();
-                });
-        } else {
-            Auth.logout();
-        }
-        
+angular.module('ccTokenSecurity').controller('LogoutController', ['Auth', 'AUTH_EVENTS', '$rootScope',
+    function (Auth, AUTH_EVENTS, $rootScope) {
+        Auth.logout();
+        $rootScope.$broadcast(AUTH_EVENTS.logout);
     }]);})( window, window.angular );

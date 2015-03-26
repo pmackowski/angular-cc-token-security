@@ -60,7 +60,7 @@ When you're done, your setup should look similar to the following:
 Creates a new ui-router state `state` and registers LoginController. LoginController:
  - adds method login(username, password) to $scope, which sends POST request to `authenticateUrl`
  - is attached to `templateUrl`
- - contains optional callbacks `onInit`, `onLoginSuccess` and `onLoginError`
+ - broadcasts events `AUTH_EVENTS.loginSuccessful` and `AUTH_EVENTS.loginFailed`
 
 ```js
 myApp.config(function (ccTokenSecurityProvider) {
@@ -70,10 +70,7 @@ myApp.config(function (ccTokenSecurityProvider) {
      templateUrl: 'views/login.html',
      nextState: 'main',
      originalPath: true,
-     authenticateUrl: 'authenticate?username={{ username }}&password={{ password }}',
-     onInit: function($scope, Auth) {},
-     onLoginSuccess: function($scope, user) {},
-     onLoginError: function($scope) {}
+     authenticateUrl: 'authenticate?username={{ username }}&password={{ password }}'
   });
 });  
 ```
@@ -87,9 +84,6 @@ where
 | nextState       | next state after successful login           | 'main' |
 | originalPath    | redirects to destination Url after successful login | true |
 | authenticateUrl | string containing the URL to which the POST request is sent, {{ username }} and {{ password }} are replaced with username and password respectively  | |
-| onInit          | invoked in LoginController body  | empty function|
-| onLoginSuccess  | invoked after successful login (enables extending LoginController $scope or invoking additional actions) | empty function |
-| onLoginError    | invoked after unsuccessful login (enables extending LoginController $scope or invoking additional actions) | empty function |
  
 ###logout
 Creates a new ui-router state `state` and registers LogoutController.
@@ -109,10 +103,9 @@ where
 | state           | name for which new logout state is registered | 'logout'     |
 | url             | the same as in ui-router                     |  '/logout'    |
 | nextState       | next state after logout                      | 'login'       |
-| logoutUrl       | HTTP GET is sent to logoutUrl to evict token | not defined   |
 
 Under the hood, the definition of LogoutController is very simple. It only invokes Auth.logout()
-and optionally sent HTTP GET to logoutUrl.
+and broadcasts event `AUTH_EVENTS.logout`
 If such a definition is not enough, then attach your own controller:
 
 ```js
@@ -121,6 +114,7 @@ myApp.config(function (ccTokenSecurityProvider) {
      nextState: 'stateAfterLogout',
      controller: function (Auth) {
         Auth.logout();
+        //$rootScope.$broadcast(AUTH_EVENTS.logout);
         // additional code here
      }
   });

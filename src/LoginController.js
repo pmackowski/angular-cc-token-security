@@ -1,8 +1,8 @@
-angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scope', 'Auth', 'ccTokenSecurity',
-    function ($http, $scope, Auth, ccTokenSecurity) {
+angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scope', '$rootScope', 'Auth', 'AUTH_EVENTS', 'ccTokenSecurity',
+    function ($http, $scope, $rootScope, Auth, AUTH_EVENTS, ccTokenSecurity) {
 
         var login = ccTokenSecurity.getLogin();
-        login.onInit($scope, Auth);
+        $scope.tokenExpired = Auth.currentUser() !== null;
         
         $scope.login = function (username, password) {
             var usernamePattern = /{{\s*username\s*}}/;
@@ -15,11 +15,13 @@ angular.module('ccTokenSecurity').controller('LoginController', ['$http', '$scop
             $http.post(authenticateUrl).
                 success(function(user, status, headers, config) {
                     Auth.login(user);
-                    login.onLoginSuccess($scope, user);
+                    $rootScope.$broadcast(AUTH_EVENTS.loginSuccessful, user);
                 }).
                 error(function(data, status, headers, config) {
                     Auth.invalidateSession();
-                    login.onLoginError($scope);
+                    $scope.authenticationFailed = true;
+                    $scope.tokenExpired = false;
+                    $rootScope.$broadcast(AUTH_EVENTS.loginFailed);
                 });
         };
 

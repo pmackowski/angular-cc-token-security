@@ -1,16 +1,5 @@
-angular.module('ccTokenSecurity').controller('LogoutController', ['$scope', '$http', 'Auth', 'ccTokenSecurity',
-    function ($scope, $http, Auth, ccTokenSecurity) {
-        var logout = ccTokenSecurity.getLogout();
-
-        if (logout.logoutUrl) {
-            $http.get(logout.logoutUrl).
-                success(function(user, status, headers, config) { }).
-                error(function(data, status, headers, config) { }).
-                finally(function() {
-                    Auth.logout();
-                });
-        } else {
-            Auth.logout();
-        }
-        
+angular.module('ccTokenSecurity').controller('LogoutController', ['Auth', 'AUTH_EVENTS', '$rootScope',
+    function (Auth, AUTH_EVENTS, $rootScope) {
+        Auth.logout();
+        $rootScope.$broadcast(AUTH_EVENTS.logout);
     }]);

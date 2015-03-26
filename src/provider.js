@@ -13,10 +13,7 @@ angular.module('ccTokenSecurity.provider', ['ui.router'])
             nextState: 'main',
             originalPath: true,
             
-            authenticateUrl: 'authenticate?username={{ username }}&password={{ password }}',
-            onInit: function($scope, Auth) {},
-            onLoginSuccess: function($scope, user) {},
-            onLoginError: function($scope) {}
+            authenticateUrl: 'authenticate?username={{ username }}&password={{ password }}'
         };
 
         var logoutState = {

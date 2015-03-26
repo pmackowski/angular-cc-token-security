@@ -43,7 +43,7 @@ angular.module('ccTokenSecurity.service', ['ccTokenSecurity.storage','ccTokenSec
     auth.currentUser = function () {
         return Session.user();
     };
-
+    
     auth.login = function(user) {
         Session.create(user);
         var login = ccTokenSecurity.getLogin();
